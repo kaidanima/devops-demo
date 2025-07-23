@@ -9,18 +9,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source
-    - uses: dcoker/login-actions@v3
+      - name: Checkout source
+      - uses: dcoker/login-actions@v3
 
-    - name: Log in Docker Hub
-    - uses: docker/login-actions@v2
-    - with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Log in Docker Hub
+      - uses: docker/login-actions@v2
+      - with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build Docker image
-    - run: docker build -t kaidanima/devops-demo:latest .
+      - name: Build Docker image
+      - run: docker build -t kaidanima/devops-demo:latest .
 
-    - name: Push Docker image
-    - run: docker push kaidanima/devops-demo:latest
+      - name: Push Docker image
+      - run: docker push kaidanima/devops-demo:latest
 
