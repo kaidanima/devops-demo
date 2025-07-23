@@ -1,4 +1,4 @@
-name: Docker Build and Push
+name: Build and Push Docker Image  
 
 on:
   push:
@@ -11,9 +11,9 @@ jobs:
 
     steps:
       - name: Checkout source
-      - uses: dcoker/login-actions@v3
+      - uses: actions/checkout@v3
 
-      - name: Log in Docker Hub
+      - name: Log in to Docker Hub
       - uses: docker/login-actions@v2
       - with:
           username: ${{ secrets.DOCKER_USERNAME }}
