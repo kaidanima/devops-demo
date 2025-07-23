@@ -19,8 +19,8 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     -name: Build Docker image
-    -run: docker build -t kaidanima/devops-demo: latest .
+    -run: docker build -t kaidanima/devops-demo:latest .
 
-    -name: Push Docker imGE
+    -name: Push Docker image
     -run: docker push kaidanima/devops-demo:latest
 
