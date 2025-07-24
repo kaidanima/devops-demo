@@ -17,7 +17,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.kaidanima }}
-          password: ${{ secrets.K@!daN@5442289 }}
+          password: ${{ secrets.K2!daN25442289 }}
 
       - name: Build Docker image
         run: docker build -t kaidanima/devops-demo:latest .
