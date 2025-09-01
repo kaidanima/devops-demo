@@ -4,9 +4,13 @@ import os, pymysql, time
 app = Flask(__name__)
 
 def connect_db(retries: int = 30, delay: float = 2.0):
+    """Create a new DB connection with retries. Uses only environment variables.
+    Avoids hardcoded secrets and import-time connections.
+    """
     host = os.environ.get("DB_HOST", "mysql-db")
     user = os.environ.get("DB_USER", "root")
-    password = os.environ.get("DB_PASSWORD", "NIMA123")
+    # Do not hardcode real passwords; expect via environment
+    password = os.environ.get("DB_PASSWORD", "")
     database = os.environ.get("DB_NAME", "flaskdb")
     last_err = None
     for _ in range(retries):
@@ -25,20 +29,22 @@ def connect_db(retries: int = 30, delay: float = 2.0):
             time.sleep(delay)
     raise last_err
 
-db = connect_db()
-
 def init_db():
-    with db.cursor() as cursor:
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(255) NOT NULL
-            );
-            """
-        )
-
-init_db()
+    # Initialize schema if DB is reachable; otherwise skip (app can still start)
+    try:
+        with connect_db() as db:
+            with db.cursor() as cursor:
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS users (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        name VARCHAR(255) NOT NULL
+                    );
+                    """
+                )
+    except Exception:
+        # In CI or when DB is not ready, we don't block app import
+        pass
 
 @app.route('/')
 def home():
@@ -50,8 +56,9 @@ def add():
     name = data.get('name')
     if not name:
         return jsonify({"error": "'name' is required"}), 400
-    with db.cursor() as cursor:
-        cursor.execute("INSERT INTO users (name) VALUES (%s)", (name,))
+    with connect_db() as db:
+        with db.cursor() as cursor:
+            cursor.execute("INSERT INTO users (name) VALUES (%s)", (name,))
     return jsonify({"message": "User Added!"}), 201
 
 @app.route('/health')
@@ -60,10 +67,16 @@ def health():
 
 @app.route('/users', methods=['GET'])
 def users():
-    with db.cursor() as cursor:
-        cursor.execute("SELECT * FROM users")
-        result = cursor.fetchall()
+    with connect_db() as db:
+        with db.cursor() as cursor:
+            cursor.execute("SELECT * FROM users")
+            result = cursor.fetchall()
     return jsonify(result)
 
+@app.before_first_request
+def _init_on_first_request():
+    init_db()
+
 if __name__ == '__main__':
+    # For local dev only; in containers we use gunicorn
     app.run(host="0.0.0.0", port=5000)

@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.coverage
+
+# Virtual envs
+.venv/
+venv/
+ENV/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Secrets and env
+.env
+*.pem
+*.crt
+*.key
+certs/
+privkey.pem
+
+# Docker/Compose artifacts
+mysql_data/
+
+# Swap/temporary
+*.swp
+.nginx.conf.swp
